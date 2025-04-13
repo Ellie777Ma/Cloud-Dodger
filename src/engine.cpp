@@ -88,8 +88,8 @@ void Engine::initShapes() {
     vec2 buildingSize;
     while (totalBuildingWidth < width + 50) {
         // Building height between 50-100
-        buildingSize.y = rand() % 101 + 150;
-        // Building width between 30-50
+        buildingSize.y = rand() % 101 + 50;
+        // Building width between 20-50
         buildingSize.x = rand() % 21 + 30;
         buildings1.push_back(make_unique<Rect>(shapeShader,
                                                vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
@@ -101,8 +101,8 @@ void Engine::initShapes() {
     totalBuildingWidth = 0;
     while (totalBuildingWidth < width + 100) {
         //  Populate this vector of mediumBuilding buildings
-        //  Building height between 100-200
-        buildingSize.y = rand() % 151 + 200;
+        //  Building height between 150-250
+        buildingSize.y = rand() % 151 + 100;
         //  Building width between 50-100
         buildingSize.x = rand() % 51 + 50;
         buildings2.push_back(make_unique<Rect>(shapeShader,
@@ -115,10 +115,10 @@ void Engine::initShapes() {
     totalBuildingWidth = 0;
     while (totalBuildingWidth < width + 200) {
         //  Populate this vector of largeBuilding buildings
-        //  Building height between 200-400
-        buildingSize.y = rand() % 201 + 250;
+        //  Building height between 200-350
+        buildingSize.y = rand() % 201 + 150;
         //  Building width between 100-200
-        buildingSize.x = rand() % 101 + 200;
+        buildingSize.x = rand() % 101 + 100;
         buildings3.push_back(make_unique<Rect>(shapeShader,
                                                  vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
                                                       ((buildingSize.y / 2.0) + 50)),
