@@ -1,13 +1,18 @@
 #include "engine.h"
 #include <iostream>
 
+//Background colors
 const color nightSky(35/255.0, 35/255.0, 120/255.0);
-const color grassGreen(25/255.0, 85/255.0, 50/255.0);
-const color darkGreen(27/255.0, 81/255.0, 45/255.0);
+const color concrete(60/255.0, 60/255.0, 60/255.0);
+const color darkGreen(25/255.0, 85/255.0, 50/255.0);
 const color white(1, 1, 1);
-const color brickRed(201/255.0, 20/255.0, 20/255.0);
-const color darkBlue(1/255.0, 110/255.0, 214/255.0);
-const color purple(119/255.0, 11/255.0, 224/255.0);
+
+// Building colors
+const color smallBuilding(225/255.0, 200/255.0, 255/255.0);
+const color mediumBuilding(122/255.0, 191/255.0, 255/255.0);
+const color largeBuilding(71/255.0, 71/255.0, 255/255.0);
+
+//  Hover colors
 const color black(0, 0, 0);
 const color magenta(1, 0, 1);
 const color orange(1, 163/255.0, 22/255.0);
@@ -67,23 +72,17 @@ void Engine::initShaders() {
 void Engine::initShapes() {
     // Initialize the user to be a 10x10 white block
     // centered at (0, 0)
-    user = make_unique<Rect>(shapeShader, vec2(width/2, height/2), vec2(10, 10), white); // placeholder for compilation
+    user = make_unique<Rect>(shapeShader, vec2(width/4, height/2), vec2(10, 10), white); // placeholder for compilation
 
     // Init grass
-    grass = make_unique<Rect>(shapeShader, vec2(width/2, 50), vec2(width, height / 3), grassGreen);
+    grass = make_unique<Rect>(shapeShader, vec2(width/2, 50), vec2(width, height / 3), concrete);
 
     // Init moon
-    moon.push_back(make_unique<Circle>(shapeShader, vec2(width, height), vec2(20, 20), color(1, 1, 1, 1)));
+    moon.push_back(make_unique<Circle>(shapeShader, vec2(width, height), vec2(20, 20), color(white)));
 
     // Init mountains
     mountains.push_back(make_unique<Triangle>(shapeShader, vec2(width/4, 300), vec2(width, 400), darkGreen));
     mountains.push_back(make_unique<Triangle>(shapeShader, vec2(2*width/3, 300), vec2(width, 500), darkGreen));
-
-
-    // Init Cloud
-    clouds.push_back(Cloud(shapeShader, vec2(200, 500)));
-    clouds.push_back(Cloud(shapeShader, vec2(400, 520)));
-    clouds.push_back(Cloud(shapeShader, vec2(325, 480)));
 
     // Init buildings from closest to furthest
     int totalBuildingWidth = 0;
@@ -96,13 +95,13 @@ void Engine::initShapes() {
         buildings1.push_back(make_unique<Rect>(shapeShader,
                                                vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
                                                     ((buildingSize.y / 2.0) + 50)),
-                                               buildingSize, brickRed));
+                                               buildingSize, smallBuilding));
         totalBuildingWidth += buildingSize.x + 5;
     }
     // Populate second set of buildings
     totalBuildingWidth = 0;
     while (totalBuildingWidth < width + 100) {
-        // Populate this vector of darkBlue buildings
+        // Populate this vector of mediumBuilding buildings
         // Building height between 100-200
         buildingSize.y = rand() % 151 + 200;
         // Building width between 50-100
@@ -110,13 +109,13 @@ void Engine::initShapes() {
         buildings2.push_back(make_unique<Rect>(shapeShader,
                                                  vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
                                                       ((buildingSize.y / 2.0) + 50)),
-                                                 buildingSize, darkBlue));
+                                                 buildingSize, mediumBuilding));
         totalBuildingWidth += buildingSize.x + 5;
     }
     // Populate third set of buildings
     totalBuildingWidth = 0;
     while (totalBuildingWidth < width + 200) {
-        // Populate this vector of purple buildings
+        // Populate this vector of largeBuilding buildings
         // Building height between 200-400
         buildingSize.y = rand() % 201 + 250;
         // Building width between 100-200
@@ -124,9 +123,29 @@ void Engine::initShapes() {
         buildings3.push_back(make_unique<Rect>(shapeShader,
                                                  vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
                                                       ((buildingSize.y / 2.0) + 50)),
-                                                 buildingSize, purple));
+                                                 buildingSize, largeBuilding));
         totalBuildingWidth += buildingSize.x + 5;
     }
+
+    // Init cloud obstacles
+    clouds.push_back(Cloud(shapeShader, vec2(450, 200)));
+    clouds.push_back(Cloud(shapeShader, vec2(450, 450)));
+    clouds.push_back(Cloud(shapeShader, vec2(450, 550)));
+    clouds.push_back(Cloud(shapeShader, vec2(600, 250)));
+    clouds.push_back(Cloud(shapeShader, vec2(600, 350)));
+    clouds.push_back(Cloud(shapeShader, vec2(600, 500)));
+    clouds.push_back(Cloud(shapeShader, vec2(750, 150)));
+    clouds.push_back(Cloud(shapeShader, vec2(750, 400)));
+    clouds.push_back(Cloud(shapeShader, vec2(750, 550)));
+    clouds.push_back(Cloud(shapeShader, vec2(900, 200)));
+    clouds.push_back(Cloud(shapeShader, vec2(900, 350)));
+    clouds.push_back(Cloud(shapeShader, vec2(900, 450)));
+    clouds.push_back(Cloud(shapeShader, vec2(1150, 150)));
+    clouds.push_back(Cloud(shapeShader, vec2(1150, 300)));
+    clouds.push_back(Cloud(shapeShader, vec2(1150, 500)));
+    clouds.push_back(Cloud(shapeShader, vec2(1300, 250)));
+    clouds.push_back(Cloud(shapeShader, vec2(1300, 450)));
+    clouds.push_back(Cloud(shapeShader, vec2(1300, 550)));
 }
 
 void Engine::processInput() {
@@ -150,39 +169,36 @@ void Engine::processInput() {
     // Update mouse rect to follow mouse
     MouseY = height - MouseY; // make sure mouse y-axis isn't flipped
 
-    // Make the user move with the mouse
-    user->setPosX(MouseX);
+    // Make the user move with the mouse's y position
     user->setPosY(MouseY);
 
+    // Small buildings turn orange when overlapping
     for (const unique_ptr<Rect>& r : buildings1) {
         if (r->isOverlapping(*user)) {
             r->setColor(orange);
         } else {
-            r->setColor(brickRed);
+            r->setColor(smallBuilding);
         }
     }
 
-    // Update the colors of buildings2 and buildings3.
-    // Note that darkBlue buildings turn cyan when overlapping
-    // with the user, and purple buildings turn magenta.
+    // Medium buildings turn cyan when overlapping
     for (const unique_ptr<Rect>& r : buildings2) {
         if (r->isOverlapping(*user)) {
             r->setColor(cyan);
         } else {
-            r->setColor(darkBlue);
+            r->setColor(mediumBuilding);
         }
     }
 
+    // Large buildings turn magenta when overlapping
     for (const unique_ptr<Rect>& r : buildings3) {
         if (r->isOverlapping(*user)) {
             r->setColor(magenta);
         } else {
-            r->setColor(purple);
+            r->setColor(largeBuilding);
         }
     }
 
-    // Once you are confident your isOverlapping method
-    // works, uncomment this code to have the program exit
     // when the user overlaps with the clouds.
     for (const Cloud& c : clouds) {
         if (c.isOverlapping(*user)) {
@@ -202,7 +218,7 @@ void Engine::update() {
         c.moveXWithinBounds(-1, width);
     }
 
-    // Update buildings
+    // Update small buildings
     for (int i = 0; i < buildings1.size(); ++i) {
         // Move all the red buildings to the left
         buildings1[i]->moveX(-1.5);
@@ -214,8 +230,7 @@ void Engine::update() {
         }
     }
 
-    // Make the other two vectors of buildings move.
-    // The larger the buildings, the slower they should move.
+    // Update medium buildings
     for (int i = 0; i < buildings2.size(); ++i) {
         buildings2[i]->moveX(-0.75); // Move slower
         if (buildings2[i]->getPosX() < -(buildings2[i]->getSize().x/2)) {
@@ -224,6 +239,7 @@ void Engine::update() {
         }
     }
 
+    // Update large buildings
     for (int i = 0; i < buildings3.size(); ++i) {
         buildings3[i]->moveX(-0.375); // Move even slower
         if (buildings3[i]->getPosX() < -(buildings3[i]->getSize().x/2)) {
@@ -247,16 +263,10 @@ void Engine::render() {
         mo->draw();
     }
 
-    for (Cloud& c : clouds) {
-        c.setUniformsAndDraw();
-    }
-
     grass->setUniforms();
     grass->draw();
 
-    // Add logic to draw the the user and the buildings.
-    // Note that the order of drawing matters because whatever
-    // is drawn last appears on top.
+    // Add logic to draw the user and the buildings.
     for (const unique_ptr<Rect>& b : buildings3) {
         b->setUniforms();
         b->draw();
@@ -269,6 +279,11 @@ void Engine::render() {
         b->setUniforms();
         b->draw();
     }
+
+    for (Cloud& c : clouds) {
+        c.setUniformsAndDraw();
+    }
+
     user->setUniforms();
     user->draw();
 
