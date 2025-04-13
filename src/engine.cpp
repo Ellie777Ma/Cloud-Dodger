@@ -1,13 +1,12 @@
 #include "engine.h"
 #include <iostream>
 
-//Background colors
+//  Background colors
 const color nightSky(35/255.0, 35/255.0, 120/255.0);
-const color concrete(60/255.0, 60/255.0, 60/255.0);
 const color darkGreen(25/255.0, 85/255.0, 50/255.0);
 const color white(1, 1, 1);
 
-// Building colors
+//  Building colors
 const color smallBuilding(225/255.0, 200/255.0, 255/255.0);
 const color mediumBuilding(122/255.0, 191/255.0, 255/255.0);
 const color largeBuilding(71/255.0, 71/255.0, 255/255.0);
@@ -27,7 +26,7 @@ Engine::Engine() : keys() {
 Engine::~Engine() {}
 
 unsigned int Engine::initWindow(bool debug) {
-    // glfw: initialize and configure
+    //  glfw: initialize and configure
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -42,7 +41,7 @@ unsigned int Engine::initWindow(bool debug) {
     window = glfwCreateWindow(width, height, "engine", nullptr, nullptr);
     glfwMakeContextCurrent(window);
 
-    // glad: load all OpenGL function pointers
+    //  glad: load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         cout << "Failed to initialize GLAD" << endl;
         return -1;
@@ -58,33 +57,33 @@ unsigned int Engine::initWindow(bool debug) {
 }
 
 void Engine::initShaders() {
-    // load shader manager
+    //  Load shader manager
     shaderManager = make_unique<ShaderManager>();
 
-    // Load shader into shader manager and retrieve it
+    //  Load shader into shader manager and retrieve it
     shapeShader = this->shaderManager->loadShader("../res/shaders/shape.vert", "../res/shaders/shape.frag",  nullptr, "shape");
 
-    // Set uniforms that never change
+    //  Set uniforms that never change
     shapeShader.use();
     shapeShader.setMatrix4("projection", this->PROJECTION);
 }
 
 void Engine::initShapes() {
-    // Initialize the user to be a 10x10 white block
-    // centered at (0, 0)
+    //  Initialize the user to be a 10x10 white block
+    //  centered at (0, 0)
     user = make_unique<Rect>(shapeShader, vec2(width/4, height/2), vec2(10, 10), white); // placeholder for compilation
 
-    // Init grass
-    grass = make_unique<Rect>(shapeShader, vec2(width/2, 50), vec2(width, height / 3), concrete);
+    //  Init grass
+    grass = make_unique<Rect>(shapeShader, vec2(width/2, 50), vec2(width, height / 3), darkGreen);
 
-    // Init moon
+    //  Init moon
     moon.push_back(make_unique<Circle>(shapeShader, vec2(width, height), vec2(20, 20), color(white)));
 
-    // Init mountains
+    //  Init mountains
     mountains.push_back(make_unique<Triangle>(shapeShader, vec2(width/4, 300), vec2(width, 400), darkGreen));
     mountains.push_back(make_unique<Triangle>(shapeShader, vec2(2*width/3, 300), vec2(width, 500), darkGreen));
 
-    // Init buildings from closest to furthest
+    //  Init buildings from closest to furthest
     int totalBuildingWidth = 0;
     vec2 buildingSize;
     while (totalBuildingWidth < width + 50) {
@@ -98,13 +97,13 @@ void Engine::initShapes() {
                                                buildingSize, smallBuilding));
         totalBuildingWidth += buildingSize.x + 5;
     }
-    // Populate second set of buildings
+    //  Populate second set of buildings
     totalBuildingWidth = 0;
     while (totalBuildingWidth < width + 100) {
-        // Populate this vector of mediumBuilding buildings
-        // Building height between 100-200
+        //  Populate this vector of mediumBuilding buildings
+        //  Building height between 100-200
         buildingSize.y = rand() % 151 + 200;
-        // Building width between 50-100
+        //  Building width between 50-100
         buildingSize.x = rand() % 51 + 50;
         buildings2.push_back(make_unique<Rect>(shapeShader,
                                                  vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
@@ -112,13 +111,13 @@ void Engine::initShapes() {
                                                  buildingSize, mediumBuilding));
         totalBuildingWidth += buildingSize.x + 5;
     }
-    // Populate third set of buildings
+    //  Populate third set of buildings
     totalBuildingWidth = 0;
     while (totalBuildingWidth < width + 200) {
-        // Populate this vector of largeBuilding buildings
-        // Building height between 200-400
+        //  Populate this vector of largeBuilding buildings
+        //  Building height between 200-400
         buildingSize.y = rand() % 201 + 250;
-        // Building width between 100-200
+        //  Building width between 100-200
         buildingSize.x = rand() % 101 + 200;
         buildings3.push_back(make_unique<Rect>(shapeShader,
                                                  vec2(totalBuildingWidth + (buildingSize.x / 2.0) + 5,
@@ -127,7 +126,7 @@ void Engine::initShapes() {
         totalBuildingWidth += buildingSize.x + 5;
     }
 
-    // Init cloud obstacles
+    //  Init cloud obstacles
     clouds.push_back(Cloud(shapeShader, vec2(450, 200)));
     clouds.push_back(Cloud(shapeShader, vec2(450, 450)));
     clouds.push_back(Cloud(shapeShader, vec2(450, 550)));
@@ -151,7 +150,7 @@ void Engine::initShapes() {
 void Engine::processInput() {
     glfwPollEvents();
 
-    // Set keys to true if pressed, false if released
+    //  Set keys to true if pressed, false if released
     for (int key = 0; key < 1024; ++key) {
         if (glfwGetKey(window, key) == GLFW_PRESS)
             keys[key] = true;
@@ -159,20 +158,20 @@ void Engine::processInput() {
             keys[key] = false;
     }
 
-    // Close window if escape key is pressed
+    //  Close window if escape key is pressed
     if (keys[GLFW_KEY_ESCAPE])
         glfwSetWindowShouldClose(window, true);
 
-    // Mouse position saved to check for collisions
+    //  Mouse position saved to check for collisions
     glfwGetCursorPos(window, &MouseX, &MouseY);
 
-    // Update mouse rect to follow mouse
+    //  Update mouse rect to follow mouse
     MouseY = height - MouseY; // make sure mouse y-axis isn't flipped
 
-    // Make the user move with the mouse's y position
+    //  Make the user move with the mouse's y position
     user->setPosY(MouseY);
 
-    // Small buildings turn orange when overlapping
+    //  Small buildings turn orange when overlapping
     for (const unique_ptr<Rect>& r : buildings1) {
         if (r->isOverlapping(*user)) {
             r->setColor(orange);
@@ -181,7 +180,7 @@ void Engine::processInput() {
         }
     }
 
-    // Medium buildings turn cyan when overlapping
+    //  Medium buildings turn cyan when overlapping
     for (const unique_ptr<Rect>& r : buildings2) {
         if (r->isOverlapping(*user)) {
             r->setColor(cyan);
@@ -190,7 +189,7 @@ void Engine::processInput() {
         }
     }
 
-    // Large buildings turn magenta when overlapping
+    //  Large buildings turn magenta when overlapping
     for (const unique_ptr<Rect>& r : buildings3) {
         if (r->isOverlapping(*user)) {
             r->setColor(magenta);
@@ -199,7 +198,7 @@ void Engine::processInput() {
         }
     }
 
-    // when the user overlaps with the clouds.
+    //  When the user overlaps with the clouds.
     for (const Cloud& c : clouds) {
         if (c.isOverlapping(*user)) {
             glfwSetWindowShouldClose(window, true);
@@ -208,29 +207,29 @@ void Engine::processInput() {
 }
 
 void Engine::update() {
-    // Calculate delta time
+    //  Calculate delta time
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    // Update clouds
+    //  Update clouds
     for (Cloud& c : clouds) {
         c.moveXWithinBounds(-1, width);
     }
 
-    // Update small buildings
+    //  Update small buildings
     for (int i = 0; i < buildings1.size(); ++i) {
-        // Move all the red buildings to the left
+        //  Move all the red buildings to the left
         buildings1[i]->moveX(-1.5);
-        // If a building has moved off the screen
+        //  If a building has moved off the screen
         if (buildings1[i]->getPosX() < -(buildings1[i]->getSize().x/2)) {
-            // Set it to the right of the screen so that it passes through again
+            //  Set it to the right of the screen so that it passes through again
             int buildingOnLeft = (buildings1[i] == buildings1[0]) ? buildings1.size()-1 : i - 1;
             buildings1[i]->setPosX(buildings1[buildingOnLeft]->getPosX() + buildings1[buildingOnLeft]->getSize().x/2 + buildings1[i]->getSize().x/2 + 5);
         }
     }
 
-    // Update medium buildings
+    //  Update medium buildings
     for (int i = 0; i < buildings2.size(); ++i) {
         buildings2[i]->moveX(-0.75); // Move slower
         if (buildings2[i]->getPosX() < -(buildings2[i]->getSize().x/2)) {
@@ -239,7 +238,7 @@ void Engine::update() {
         }
     }
 
-    // Update large buildings
+    //  Update large buildings
     for (int i = 0; i < buildings3.size(); ++i) {
         buildings3[i]->moveX(-0.375); // Move even slower
         if (buildings3[i]->getPosX() < -(buildings3[i]->getSize().x/2)) {
@@ -253,20 +252,23 @@ void Engine::render() {
     glClearColor(nightSky.red,nightSky.green, nightSky.blue, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    //  Draws the mountains in the background
     for (const unique_ptr<Triangle>& m : mountains) {
         m->setUniforms();
         m->draw();
     }
 
+    //  Draws the moon in the top right of the background
     for (const unique_ptr<Circle>& mo : moon) {
         mo->setUniforms();
         mo->draw();
     }
 
+    //  Draws the grass in the foreground
     grass->setUniforms();
     grass->draw();
 
-    // Add logic to draw the user and the buildings.
+    //  Draws the buildings.
     for (const unique_ptr<Rect>& b : buildings3) {
         b->setUniforms();
         b->draw();
@@ -280,10 +282,12 @@ void Engine::render() {
         b->draw();
     }
 
+    //  Draws the clouds
     for (Cloud& c : clouds) {
         c.setUniformsAndDraw();
     }
 
+    //  Draws the user
     user->setUniforms();
     user->draw();
 
