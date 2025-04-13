@@ -34,6 +34,7 @@ class Engine {
         unique_ptr<ShaderManager> shaderManager;
 
         unique_ptr<Rect> grass;
+		vector<unique_ptr<Circle>> moon;
         vector<unique_ptr<Rect>> buildings1;
         vector<unique_ptr<Rect>> buildings2;
         vector<unique_ptr<Rect>> buildings3;

@@ -1,8 +1,8 @@
 #include "engine.h"
 #include <iostream>
 
-const color skyBlue(77/255.0, 213/255.0, 240/255.0);
-const color grassGreen(26/255.0, 176/255.0, 56/255.0);
+const color nightSky(35/255.0, 35/255.0, 120/255.0);
+const color grassGreen(25/255.0, 85/255.0, 50/255.0);
 const color darkGreen(27/255.0, 81/255.0, 45/255.0);
 const color white(1, 1, 1);
 const color brickRed(201/255.0, 20/255.0, 20/255.0);
@@ -72,9 +72,13 @@ void Engine::initShapes() {
     // Init grass
     grass = make_unique<Rect>(shapeShader, vec2(width/2, 50), vec2(width, height / 3), grassGreen);
 
+    // Init moon
+    moon.push_back(make_unique<Circle>(shapeShader, vec2(width, height), vec2(20, 20), color(1, 1, 1, 1)));
+
     // Init mountains
     mountains.push_back(make_unique<Triangle>(shapeShader, vec2(width/4, 300), vec2(width, 400), darkGreen));
     mountains.push_back(make_unique<Triangle>(shapeShader, vec2(2*width/3, 300), vec2(width, 500), darkGreen));
+
 
     // Init Cloud
     clouds.push_back(Cloud(shapeShader, vec2(200, 500)));
@@ -86,7 +90,7 @@ void Engine::initShapes() {
     vec2 buildingSize;
     while (totalBuildingWidth < width + 50) {
         // Building height between 50-100
-        buildingSize.y = rand() % 51 + 50;
+        buildingSize.y = rand() % 101 + 150;
         // Building width between 30-50
         buildingSize.x = rand() % 21 + 30;
         buildings1.push_back(make_unique<Rect>(shapeShader,
@@ -100,7 +104,7 @@ void Engine::initShapes() {
     while (totalBuildingWidth < width + 100) {
         // Populate this vector of darkBlue buildings
         // Building height between 100-200
-        buildingSize.y = rand() % 101 + 100;
+        buildingSize.y = rand() % 151 + 200;
         // Building width between 50-100
         buildingSize.x = rand() % 51 + 50;
         buildings2.push_back(make_unique<Rect>(shapeShader,
@@ -114,7 +118,7 @@ void Engine::initShapes() {
     while (totalBuildingWidth < width + 200) {
         // Populate this vector of purple buildings
         // Building height between 200-400
-        buildingSize.y = rand() % 201 + 400;
+        buildingSize.y = rand() % 201 + 250;
         // Building width between 100-200
         buildingSize.x = rand() % 101 + 200;
         buildings3.push_back(make_unique<Rect>(shapeShader,
@@ -230,12 +234,17 @@ void Engine::update() {
 }
 
 void Engine::render() {
-    glClearColor(skyBlue.red,skyBlue.green, skyBlue.blue, 1.0f);
+    glClearColor(nightSky.red,nightSky.green, nightSky.blue, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     for (const unique_ptr<Triangle>& m : mountains) {
         m->setUniforms();
         m->draw();
+    }
+
+    for (const unique_ptr<Circle>& mo : moon) {
+        mo->setUniforms();
+        mo->draw();
     }
 
     for (Cloud& c : clouds) {
